@@ -18,12 +18,15 @@ const packs = {
   "Fantasy Pack":[["Elf","Common",44.98],["Dwarf","Uncommon",30],["Wizard","Rare",15],["Archmage","Legendary",8.42],["Ancient Dragon","Mythic",1],["Realm Breaker","Secret",0.5],["Voidwyrm","Ultra Secret",0.08],["World Genesis","Mystical",0.02]],
   "Cyber Pack":[["Drone","Common",44.98],["Android","Uncommon",30],["Mecha Wolf","Rare",15],["AI Overlord","Legendary",8.42],["Neural Core","Mythic",1],["System Zero","Secret",0.5],["Codebreaker","Ultra Secret",0.08],["The Source","Mystical",0.02]],
   "Jungle Pack":[["Monkey","Common",44.98],["Parrot","Uncommon",30],["Tiger","Rare",15],["Ancient Gorilla","Legendary",8.42],["Verdant Titan","Mythic",1],["Jungle Deity","Secret",0.5],["Heart of Wild","Ultra Secret",0.08],["Primal Core","Mystical",0.02]],
-  "Winter Pack":[["Snowman","Common",44.98],["Penguin","Uncommon",30],["Polar Bear","Rare",15],["Frost Giant","Legendary",8.42],["Glacier Titan","Mythic",1],["Blizzard Warden","Secret",0.5],["Absolute Zero","Ultra Secret",0.08],["Frozen Singularity","Mystical",0.02]]
+  "Winter Pack":[["Snowman","Common",44.98],["Penguin","Uncommon",30],["Polar Bear","Rare",15],["Frost Giant","Legendary",8.42],["Glacier Titan","Mythic",1],["Blizzard Warden","Secret",0.5],["Absolute Zero","Ultra Secret",0.08],["Frozen Singularity","Mystical",0.02]],
+  "Desert Pack":[["Camel","Common",45],["Scorpion","Uncommon",30],["Sand Golem","Rare",15],["Pharaoh","Legendary",8],["Sphinx","Mythic",1],["Dune Wraith","Secret",0.5],["Sun God","Ultra Secret",0.08],["Oasis Spirit","Mystical",0.02]],
+  "Volcano Pack":[["Lava Lizard","Common",45],["Firebird","Uncommon",30],["Magma Beast","Rare",15],["Volcanic Titan","Legendary",8],["Inferno Dragon","Mythic",1],["Ash Demon","Secret",0.5],["Eruption Lord","Ultra Secret",0.08],["Magma Core","Mystical",0.02]],
+  "Candy Pack":[["Candy Cane","Common",45],["Chocolate Bunny","Uncommon",30],["Gingerbread Man","Rare",15],["Sugar Wizard","Legendary",8],["Sweet Dragon","Mythic",1],["Marshmallow Giant","Secret",0.5],["Lollipop King","Ultra Secret",0.08],["Candy Cosmos","Mystical",0.02]],
+  "Toy Pack":[["Toy Car","Common",45],["Rubber Duck","Uncommon",30],["Action Figure","Rare",15],["Mechanical Robot","Legendary",8],["Giant Teddy","Mythic",1],["Windup Beast","Secret",0.5],["Toy Overlord","Ultra Secret",0.08],["Infinite Toybox","Mystical",0.02]],
+  "Music Pack":[["Tambourine","Common",45],["Flute","Uncommon",30],["Drum","Rare",15],["Guitar","Legendary",8],["Grand Piano","Mythic",1],["Harp Spirit","Secret",0.5],["Conductor","Ultra Secret",0.08],["Symphony Prime","Mystical",0.02]]
 };
 
 const inventory = {};
-
-// Load saved inventory from localStorage
 const saved = localStorage.getItem("blooketInventory");
 if(saved) Object.assign(inventory, JSON.parse(saved));
 
@@ -61,7 +64,7 @@ const content=document.createElement("div"); content.style=`flex:1;display:flex;
 const sidebar=document.createElement("div"); sidebar.style=`width:220px;background:rgba(0,0,0,.35);padding:16px;display:flex;flex-direction:column;gap:12px;`; content.appendChild(sidebar);
 const main=document.createElement("div"); main.style=`flex:1;position:relative;padding:10px;overflow:auto;`; content.appendChild(main);
 
-/* ================= Preview Panel inside main ================= */
+/* Preview Panel */
 const previewPanel = document.createElement("div");
 previewPanel.style = `
   width: 100%;
@@ -90,7 +93,7 @@ document.addEventListener("keydown",(e)=>{
     if(e.code==="Space"){gui.style.display=gui.style.display==="none"?"flex":"none"; e.preventDefault();}
 });
 
-/* ================= Result Bar ================= */
+/* Result Bar */
 const resultBar = document.createElement("div");
 resultBar.style = `
   position:absolute;
@@ -111,11 +114,8 @@ resultBar.style = `
 `;
 resultBar.textContent="Open a pack!";
 main.appendChild(resultBar);
-
-// Click to hide
 resultBar.onclick = () => { resultBar.style.display = "none"; };
 
-// Show result function
 function showResult(name, rarity){
     resultBar.innerHTML = `You got <span style="color:${rarityInfo[rarity].color}">${name} (${rarity})</span>`;
     resultBar.style.display = "flex"; 
@@ -123,7 +123,7 @@ function showResult(name, rarity){
     if(rarity === "Ultra Secret" || rarity === "Mystical") resultBar.classList.add("jump");
 }
 
-/* ================= Sidebar Buttons ================= */
+/* Sidebar Buttons */
 ["Open Packs","Inventory","Index"].forEach(tab=>{
   const b=document.createElement("button");
   b.textContent=tab;
@@ -148,7 +148,7 @@ sidebar.appendChild(clearBtn);
 /* Close */
 const close=document.createElement("div"); close.textContent="✖"; close.style=`position:absolute;top:16px;right:20px;cursor:pointer;font-size:20px;`; close.onclick=()=>gui.remove(); gui.appendChild(close);
 
-/* ================= LOGIC ================= */
+/* Logic */
 function roll(pack){let r=Math.random()*100,sum=0;for(const i of pack){sum+=i[2];if(r<=sum)return i;}return pack.at(-1);}
 
 function showPackPreview(packName){
@@ -182,24 +182,40 @@ function showPacks(){
         const [name, rarity] = roll(packs[packName]);
         inventory[name] = inventory[name] || {count:0, rarity};
         inventory[name].count++;
-
-        // Save inventory to localStorage
         localStorage.setItem("blooketInventory", JSON.stringify(inventory));
-
         showResult(name, rarity);
     };
     main.appendChild(btn);
   });
 }
 
+/* ================= Sorted Inventory ================= */
 function showInventory(){
-  const grid=document.createElement("div"); grid.style=`display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;`; main.appendChild(grid);
-  Object.entries(inventory).forEach(([name,data])=>{
-    const card=document.createElement("div");
-    card.style=`background:rgba(0,0,0,.45);border:4px solid ${rarityInfo[data.rarity].color};border-radius:20px;padding:14px;text-align:center;box-shadow:0 0 20px ${rarityInfo[data.rarity].color};`;
-    card.innerHTML=`<div style="font-size:18px;font-weight:bold">${name}</div><div style="color:${rarityInfo[data.rarity].color}">${data.rarity}</div><div>x${data.count}</div>`;
-    grid.appendChild(card);
-  });
+    main.innerHTML = "";
+    main.appendChild(previewPanel);
+    main.appendChild(resultBar);
+
+    Object.entries(packs).forEach(([packName, pack]) => {
+        const ownedBlooks = pack.filter(([name]) => inventory[name]);
+        if(ownedBlooks.length === 0) return;
+
+        const h = document.createElement("h2");
+        h.textContent = packName;
+        h.style = "margin-top:16px; margin-bottom:8px; color:white;";
+        main.appendChild(h);
+
+        const grid = document.createElement("div");
+        grid.style = "display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;";
+        main.appendChild(grid);
+
+        ownedBlooks.forEach(([name]) => {
+            const data = inventory[name];
+            const card = document.createElement("div");
+            card.style=`background:rgba(0,0,0,.45);border:4px solid ${rarityInfo[data.rarity].color};border-radius:20px;padding:14px;text-align:center;box-shadow:0 0 20px ${rarityInfo[data.rarity].color};`;
+            card.innerHTML = `<div style="font-size:18px;font-weight:bold">${name}</div><div style="color:${rarityInfo[data.rarity].color}">${data.rarity}</div><div>x${data.count}</div>`;
+            grid.appendChild(card);
+        });
+    });
 }
 
 function showIndex(){
@@ -212,4 +228,3 @@ function showIndex(){
 showTab("Open Packs");
 
 })();
-
