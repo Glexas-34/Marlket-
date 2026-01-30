@@ -23,6 +23,10 @@ const packs = {
 
 const inventory = {};
 
+// Load saved inventory from localStorage
+const saved = localStorage.getItem("blooketInventory");
+if(saved) Object.assign(inventory, JSON.parse(saved));
+
 /* ================= STYLES ================= */
 const style=document.createElement("style");
 style.textContent=`
@@ -128,6 +132,19 @@ function showResult(name, rarity){
   sidebar.appendChild(b);
 });
 
+/* Clear Inventory */
+const clearBtn = document.createElement("button");
+clearBtn.textContent = "Clear Inventory";
+clearBtn.style=`padding:12px;margin-top:8px;border-radius:12px;background:red;color:white;cursor:pointer;`;
+clearBtn.onclick = () => {
+    if(confirm("Are you sure you want to clear your inventory?")){
+        for(const key in inventory) delete inventory[key];
+        localStorage.removeItem("blooketInventory");
+        showInventory();
+    }
+};
+sidebar.appendChild(clearBtn);
+
 /* Close */
 const close=document.createElement("div"); close.textContent="✖"; close.style=`position:absolute;top:16px;right:20px;cursor:pointer;font-size:20px;`; close.onclick=()=>gui.remove(); gui.appendChild(close);
 
@@ -165,6 +182,10 @@ function showPacks(){
         const [name, rarity] = roll(packs[packName]);
         inventory[name] = inventory[name] || {count:0, rarity};
         inventory[name].count++;
+
+        // Save inventory to localStorage
+        localStorage.setItem("blooketInventory", JSON.stringify(inventory));
+
         showResult(name, rarity);
     };
     main.appendChild(btn);
@@ -191,3 +212,4 @@ function showIndex(){
 showTab("Open Packs");
 
 })();
+
